@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL, API_KEY } from '../../config';
+import { POPULAR_BASE_URL } from '../../config';
 
 export const useHomeFetch = () => {
   const [state, setState] = useState({movies: []});
@@ -11,7 +11,7 @@ export const useHomeFetch = () => {
     setError(false);
     setLoading(false);
 
-    const isLoadMore = endpoint.search('page');
+    const isLoadMore = endpoint.search('page') !== -1;
 
     try {
       // wait for the call to finish two times
@@ -49,7 +49,7 @@ export const useHomeFetch = () => {
   }
 
   useEffect(() => {
-    fetchMovies(`${API_URL}movie/popular?api_key=${API_KEY}`);
+    fetchMovies(POPULAR_BASE_URL);
   }, [])
 
   return [{state, loading, error}, fetchMovies];

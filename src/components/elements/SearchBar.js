@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import FontAwesome from 'react-fontawesome';
 
 import {
@@ -8,10 +8,17 @@ import {
 
 const SearchBar = ({callback}) => {
   const [state, setState] = useState('');
+  const timeOut = useRef(null);
 
   const doSearch = event => {
     const { value } = event.target;
+
+    clearTimeout(timeOut.current);
     setState(value);
+
+    timeOut.current = setTimeout(() => {
+      callback(value);
+    }, 500);
   };
 
   return (
@@ -30,3 +37,11 @@ const SearchBar = ({callback}) => {
 };
 
 export default SearchBar;
+
+// Concepts
+// Controlled component -instead of using the built in state of the html input we set expicitly the value
+// The state value and the input value are always going to be in sync and we do this manually.
+// useRef hook
+
+// In this case when a user types in the input he triggers the function doSearch
+// which updates the state, which updates the value of the input.
