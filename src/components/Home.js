@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { API_URL, API_KEY, API_BASE_URL, POSTER_SIZE, BACKDROP_SIZE, IMAGE_BASE_URL } from '../config';
+import { API_URL, API_KEY, POSTER_SIZE, BACKDROP_SIZE, IMAGE_BASE_URL } from '../config';
 
 // import components
 import HeroImage from './elements/HeroImage';
@@ -17,6 +17,15 @@ import NoImage from './images/no_image.jpg';
 const Home = () => {
   const [{state, loading, error}, fetchMovies] = useHomeFetch();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const loadMoreMovies = () => {
+    const searchEndpoint = `${API_URL}search/movie?api_key=${API_KEY}&query=${searchTerm}&page=${state.currentPage + 1}`;
+    const popularEndpoint = `${API_URL}movie/popular?api_key=${API_KEY}&page=${state.currentPage + 1}`;
+
+    const endpoint = searchTerm ? searchEndpoint : popularEndpoint;
+
+    fetchMovies(endpoint);
+  }
 
   console.log(state);
 
@@ -46,8 +55,12 @@ const Home = () => {
           />
         ))}
       </Grid>
-      <Spinner />
-      <LoadMoreBtn />
+
+      {loading && <Spinner />}
+
+      {state.currentPage < state.totalPages && !loading && (
+        <LoadMoreBtn text="Load More" callback={loadMoreMovies} />
+      )}
     </>
   );
 }

@@ -11,6 +11,8 @@ export const useHomeFetch = () => {
     setError(false);
     setLoading(false);
 
+    const isLoadMore = endpoint.search('page');
+
     try {
       // wait for the call to finish two times
       // First when we fetch the data
@@ -18,7 +20,7 @@ export const useHomeFetch = () => {
       const result = await (await fetch(endpoint)).json();
       setState(prev => ({
         ...prev,
-        movies: [...result.results],
+        movies: isLoadMore ? [...prev.movies, ...result.results] : [...result.results],
         heroImage: prev.heroImage || result.results[0], // Take the first movie and use it as cover
         currentPage: result.page,
         totalPages: result.total_pages,
