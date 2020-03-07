@@ -19,7 +19,7 @@ export const useHomeFetch = () => {
       setState(prev => ({
         ...prev,
         movies: [...result.results],
-        heroImage: prev.heroImage || result.results[0],
+        heroImage: prev.heroImage || result.results[0], // Take the first movie and use it as cover
         currentPage: result.page,
         totalPages: result.total_pages,
       }))
