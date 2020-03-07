@@ -18,13 +18,28 @@ export const useHomeFetch = () => {
       // First when we fetch the data
       // Second when we parse the response (.json is async)
       const result = await (await fetch(endpoint)).json();
-      setState(prev => ({
+      setState(prev => {
+        const moviesWithDuplicates =
+          isLoadMore ?
+          [...prev.movies, ...result.results]:
+          [...result.results];
+
+        const movies = moviesWithDuplicates.reduce((unique, item) => {
+          if (unique.find(movie => movie.id === item.id)) {
+            return unique;
+          } else {
+            return [...unique, item];
+          }
+        }, []);
+
+        return {
         ...prev,
-        movies: isLoadMore ? [...prev.movies, ...result.results] : [...result.results],
+        movies: Object.values(movies),
         heroImage: prev.heroImage || result.results[0], // Take the first movie and use it as cover
         currentPage: result.page,
         totalPages: result.total_pages,
-      }))
+      }
+    });
     } catch(error) {
       setError(true);
       console.log(error);
