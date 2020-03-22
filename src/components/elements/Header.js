@@ -13,7 +13,7 @@ import {
 const Header = () => (
   <StyledHeader>
     <div className="header-conent">
-      < Link to="/">
+      <Link to="/">
         <StyledRMDBLogo src={RMDBLogo} alt="rmdb-logo" />
       </Link>
       <StyledTMDBLogo src={TMDBLogo} alt="tmdb-logo" />
