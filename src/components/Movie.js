@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
+
+import {API_KEY, API_URL} from '../config';
 
 import Navigation from './elements/Navigation';
 import MovieInfo from './elements/MovieInfo';
@@ -7,31 +9,78 @@ import Actor from './elements/Actor';
 import Grid from './elements/Grid';
 import Spinner from './elements/Spinner';
 
-import { useMovieFetch } from './hooks/useMovieFetch';
+class Movie extends Component {
+  state = { loading: true };
 
-const Movie = ({movieId}) => {
-  const [movie, loading, error] = useMovieFetch(movieId);
-  console.log(movie);
+  fetchData = async () => {
+    const {movieId} = this.props;
+    this.setState({loading: true, error: false});
 
-  if (error) return <div>Something went wrong...</div>;
-  if (loading) return <Spinner />;
+    try {
+      const endpoint = `${API_URL}movie/${movieId}?api_key=${API_KEY}`;
+      const result = await (await fetch(endpoint)).json();
+      const creditsEndpoint = `${API_URL}movie/${movieId}/credits?api_key=${API_KEY}`;
+      const creditsResult = await (await fetch(creditsEndpoint)).json();
 
-  return (
-    <>
-      <Navigation movie={movie.original_title}/>
-      <MovieInfo movie={movie} />
-      <MovieInfoBar
-        time={movie.runtime}
-        budget={movie.budget}
-        revenue={movie.revenue}
-      />
-      <Grid header="Actors">
-        {movie.actors.map(actor => (
-          <Actor key={actor.credit_id} actor={actor} />
-        ))}
-      </Grid>
-    </>
-  );
+      const directors = creditsResult.crew.filter(
+        member => member.job === 'Director'
+      );
+
+      this.setState({
+        ...result,
+        actors: creditsResult.cast,
+        directors,
+        loading: false,
+      },
+      () => {
+        localStorage.setItem(movieId, JSON.stringify(this.state));
+      })
+
+    } catch(error) {
+      this.setState({error: true})
+    }
+  }
+
+  componentDidMount() {
+    const movieId = this.state;
+
+    if (localStorage[movieId]) {
+    } else {
+      this.fetchData();
+    }
+  }
+
+  render() {
+    const {
+      original_title: originalTitle,
+      runtime,
+      budget,
+      revenue,
+      actors,
+      error,
+      loading,
+    } = this.state;
+
+    if (error) return <div>Something went wrong...</div>;
+    if (loading) return <Spinner />;
+
+    return (
+      <>
+        <Navigation movie={originalTitle}/>
+        <MovieInfo movie={this.state} />
+        <MovieInfoBar
+          time={runtime}
+          budget={budget}
+          revenue={revenue}
+        />
+        <Grid header="Actors">
+          {actors.map(actor => (
+            <Actor key={actor.credit_id} actor={actor} />
+          ))}
+        </Grid>
+      </>
+    );
+  }
 };
 
 export default Movie;

@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {Component} from 'react';
 import FontAwesome from 'react-fontawesome';
 
 import {
@@ -6,35 +6,40 @@ import {
   StyledSearchBarContent,
 } from '../styles/StyledSearchBar';
 
-const SearchBar = ({callback}) => {
-  const [state, setState] = useState('');
-  const timeOut = useRef(null);
+class SearchBar extends Component {
+  state = {inputValue: ''};
+  timeOut = null;
 
-  const doSearch = event => {
-    const { value } = event.target;
+  doSearch = event => {
+    const {value} = event.target;
+    const {callback} = this.props;
 
-    clearTimeout(timeOut.current);
-    setState(value);
+    this.setState({ inputValue: value});
+    clearTimeout(this.timeOut);
 
-    timeOut.current = setTimeout(() => {
-      callback(value);
+    this.timeOut = setTimeout(() => {
+      const {inputValue} = this.state;
+      callback(inputValue);
     }, 500);
   };
 
-  return (
-    <StyledSearchBar>
-      <StyledSearchBarContent>
-        <FontAwesome className="fa-search" name="search" size="2x" />
-        <input
-          type="text"
-          placeholder="Search Movie"
-          onChange={doSearch}
-          value={state}
-        />
-      </StyledSearchBarContent>
-    </StyledSearchBar>
-  );
-};
+  render() {
+    const {inputValue} = this.state;
+    return (
+      <StyledSearchBar>
+        <StyledSearchBarContent>
+          <FontAwesome className="fa-search" name="search" size="2x" />
+          <input
+            type="text"
+            placeholder="Search Movie"
+            onChange={this.doSearch}
+            value={inputValue}
+          />
+        </StyledSearchBarContent>
+      </StyledSearchBar>
+    );
+  }
+}
 
 export default SearchBar;
 
